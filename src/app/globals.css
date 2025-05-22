@@ -4,12 +4,18 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --start: #4285f4;
+  --end: #d96570;
+  --border: #4a5050;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
+  --color-start: var(--start);
+  --color-end: var(--end);
+  --color-border: var(--border);
   --font-mono: var(--font-geist-mono);
 }
 
