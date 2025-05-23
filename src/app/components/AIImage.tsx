@@ -10,10 +10,13 @@ export default function AIImage() {
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
   const handleGenerate = async () => {
+    const newEntry: geminiResponse = { prompt, loading: true };
+    setAiData((prev) => [...prev, newEntry]);
     setPrompt("");
-    setLoading(true);
+
     const result = await generateImage(prompt);
-    setAiData((prev) => [...prev, result]);
+
+    setAiData((prev) => prev.map((item, index) => (index === prev.length - 1 ? { ...result, prompt: item.prompt } : item)));
     setLoading(false);
   };
 
@@ -25,7 +28,7 @@ export default function AIImage() {
     <div className="relative">
       <div className="flex flex-col font-mono justify-center items-center tracking-normal w-full gap-8" ref={messagesEndRef}>
         <div className="flex-1 w-1/2 mx-auto flex items-center justify-center">
-          <Message aiData={aiData} loading={loading} />
+          <Message aiData={aiData} />
         </div>
 
         <div className="w-1/2 mx-auto sticky bottom-0 z-50 mb-2">
@@ -45,33 +48,29 @@ export default function AIImage() {
   );
 }
 
-const Message = ({ aiData, loading }: { aiData: geminiResponse[]; loading: boolean }) => {
-  if (aiData.length === 0 && !loading) {
+const Message = ({ aiData }: { aiData: geminiResponse[] }) => {
+  if (aiData.length === 0) {
     return <h1 className="text-3xl bg-gradient-to-r from-start to-end bg-clip-text text-transparent text-center">Generate AI Image</h1>;
   }
 
-  if (loading) {
-    return <div className="skeleton card w-96 h-96"></div>;
-  }
-
-  if (aiData.length > 0) {
-    return (
-      <div className="flex flex-col">
-        {aiData.map((item, index) => (
-          <div key={index}>
-            <div className="chat chat-start">
-              <div className="chat-bubble">{item.prompt}</div>
-            </div>
-            <div className="chat chat-end">
-              <div className="chat-bubble">
+  return (
+    <div className="flex flex-col gap-4">
+      {aiData.map((item, index) => (
+        <div key={index}>
+          <div className="chat chat-start">
+            <div className="chat-bubble">{item.prompt}</div>
+          </div>
+          <div className="chat chat-end">
+            <div className="chat-bubble">
+              {item.loading ? (
+                <div className="skeleton card w-96 h-96"></div>
+              ) : (
                 <img className="w-full object-cover max-h-140" src={`data:image/png;base64,${item.image}`} alt={`AI Response ${index}`} />
-              </div>
+              )}
             </div>
           </div>
-        ))}
-      </div>
-    );
-  }
-
-  return null;
+        </div>
+      ))}
+    </div>
+  );
 };

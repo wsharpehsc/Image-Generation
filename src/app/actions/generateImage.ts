@@ -16,26 +16,26 @@ export async function generateImage(prompt: string): Promise<geminiResponse> {
 
     for (const part of parts) {
       if (part.inlineData) {
-        return { image: part.inlineData.data, prompt: prompt, Error: "" };
+        return { image: part.inlineData.data, prompt: prompt, loading: false };
       }
     }
 
     return {
       image: "",
       prompt: prompt,
-      Error: "Error. Response was empty",
+      loading: false,
     };
   } catch (error) {
     return {
       image: "",
       prompt: prompt,
-      Error: `Error. ${error}`,
+      loading: false,
     };
   }
 }
 
-export interface geminiResponse {
-  image: string;
+export type geminiResponse = {
   prompt: string;
-  Error: string;
-}
+  image?: string;
+  loading?: boolean;
+};
