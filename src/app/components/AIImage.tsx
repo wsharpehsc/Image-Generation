@@ -1,33 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { generateImage, geminiResponse } from "../actions/generateImage";
 
 export default function AIImage() {
   const [prompt, setPrompt] = useState("");
   const [aiData, setAiData] = useState<geminiResponse[]>([]);
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
   const handleGenerate = async () => {
+    setPrompt("");
     setLoading(true);
     const result = await generateImage(prompt);
     setAiData((prev) => [...prev, result]);
     setLoading(false);
   };
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [aiData]);
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-8 font-mono tracking-normal">
-      <div className="flex-1 flex justify-center items-center">
+    <div className="flex flex-col h-[calc(100vh-64px)] font-mono justify-center items-center tracking-normal gap-8 ">
+      <div className="flex-1 overflow-auto w-full mx-auto flex items-center justify-center" ref={messagesEndRef}>
         <Message aiData={aiData} loading={loading} />
       </div>
-      <div className="w-1/2 flex flex-row gap-2 mt-auto justify-center items-center">
+
+      <div className="w-1/2 mx-auto relative mb-2">
         <textarea
           placeholder="Please Type Prompt"
-          className="textarea w-full border border-border rounded-3xl resize-none h-30 text-textMain p-5"
+          className="textarea w-full border border-border rounded-3xl resize-none h-30 text-textMain p-5 pr-24" // add right padding
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         ></textarea>
-        <button className="btn btn-primary rounded-4xl" onClick={handleGenerate} disabled={loading}>
+
+        <button className="absolute right-4 bottom-4 btn btn-primary rounded-4xl" onClick={handleGenerate} disabled={loading}>
           Generate
         </button>
       </div>
