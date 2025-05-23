@@ -1,7 +1,7 @@
 "use server";
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-export async function generateImage(prompt: string): Promise<string | null> {
+export async function generateImage(prompt: string): Promise<geminiResponse> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
   const model = genAI.getGenerativeModel({
@@ -16,12 +16,26 @@ export async function generateImage(prompt: string): Promise<string | null> {
 
     for (const part of parts) {
       if (part.inlineData) {
-        return part.inlineData.data;
+        return { image: part.inlineData.data, prompt: prompt, Error: "" };
       }
     }
-  } catch (error) {
-    console.error("Error generating image:", error);
-  }
 
-  return null;
+    return {
+      image: "",
+      prompt: prompt,
+      Error: "Error. Response was empty",
+    };
+  } catch (error) {
+    return {
+      image: "",
+      prompt: prompt,
+      Error: `Error. ${error}`,
+    };
+  }
+}
+
+export interface geminiResponse {
+  image: string;
+  prompt: string;
+  Error: string;
 }

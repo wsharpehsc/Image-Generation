@@ -1,39 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { generateImage } from "../actions/generateImage";
+import { generateImage, geminiResponse } from "../actions/generateImage";
 
 export default function AIImage() {
   const [prompt, setPrompt] = useState("");
-  const [imageData, setImageData] = useState<string | null>(null);
+  const [aiData, setAiData] = useState<geminiResponse[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
     setLoading(true);
     const result = await generateImage(prompt);
-    setImageData(result);
+    setAiData((prev) => [...prev, result]);
     setLoading(false);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-8 font-mono tracking-normal">
       <div className="flex-1 flex justify-center items-center">
-        {!imageData && !loading && (
-          <h1 className="text-3xl bg-gradient-to-r from-start to-end bg-clip-text text-transparent text-center">
-            Generate AI Image
-          </h1>
-        )}
-
-        {loading ? (
-          <div className="skeleton card w-96 h-96"></div>
-        ) : (
-          imageData && (
-            <img
-              className="w-full object-cover max-h-140"
-              src={`data:image/png;base64,${imageData}`}
-            />
-          )
-        )}
+        <Message aiData={aiData} loading={loading} />
       </div>
       <div className="w-1/2 flex flex-row gap-2 mt-auto justify-center items-center">
         <textarea
@@ -42,14 +27,41 @@ export default function AIImage() {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         ></textarea>
-        <button
-          className="btn btn-primary rounded-4xl"
-          onClick={handleGenerate}
-          disabled={loading}
-        >
+        <button className="btn btn-primary rounded-4xl" onClick={handleGenerate} disabled={loading}>
           Generate
         </button>
       </div>
     </div>
   );
 }
+
+const Message = ({ aiData, loading }: { aiData: geminiResponse[]; loading: boolean }) => {
+  if (aiData.length === 0 && !loading) {
+    return <h1 className="text-3xl bg-gradient-to-r from-start to-end bg-clip-text text-transparent text-center">Generate AI Image</h1>;
+  }
+
+  if (loading) {
+    return <div className="skeleton card w-96 h-96"></div>;
+  }
+
+  if (aiData.length > 0) {
+    return (
+      <div className="flex flex-col">
+        {aiData.map((item, index) => (
+          <div key={index}>
+            <div className="chat chat-start">
+              <div className="chat-bubble">{item.prompt}</div>
+            </div>
+            <div className="chat chat-end">
+              <div className="chat-bubble">
+                <img className="w-full object-cover max-h-140" src={`data:image/png;base64,${item.image}`} alt={`AI Response ${index}`} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return null;
+};
