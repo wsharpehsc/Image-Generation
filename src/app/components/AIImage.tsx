@@ -27,7 +27,7 @@ export default function AIImage() {
   return (
     <div className="relative">
       <div className="flex flex-col font-mono justify-center items-center tracking-normal w-full gap-8" ref={messagesEndRef}>
-        <div className="flex-1 w-1/2 mx-auto flex items-center justify-center">
+        <div className="flex-1 w-1/2 mx-auto flex items-center justify-center min-h-screen">
           <Message aiData={aiData} />
         </div>
 

@@ -27,7 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}>
         <div className="sticky float-left top-0 z-50">
-          <h1 className="text-3xl bg-gradient-to-r from-start to-end bg-clip-text text-transparent text-center">HC Brands</h1>
+          <h1 className="text-3xl mt-2 ml-2 bg-gradient-to-r from-start to-end bg-clip-text text-transparent text-center">HC Brands</h1>
         </div>
         <MaxWidthWrapper>{children}</MaxWidthWrapper>
       </body>
