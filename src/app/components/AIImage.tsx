@@ -22,22 +22,24 @@ export default function AIImage() {
   }, [aiData]);
 
   return (
-    <div className="flex flex-col font-mono justify-center items-center tracking-normal w-full gap-8" ref={messagesEndRef}>
-      <div className="flex-1 w-1/2 mx-auto flex items-center justify-center">
-        <Message aiData={aiData} loading={loading} />
-      </div>
+    <div className="relative">
+      <div className="flex flex-col font-mono justify-center items-center tracking-normal w-full gap-8" ref={messagesEndRef}>
+        <div className="flex-1 w-1/2 mx-auto flex items-center justify-center">
+          <Message aiData={aiData} loading={loading} />
+        </div>
 
-      <div className="w-1/2 mx-auto relative mb-2">
-        <textarea
-          placeholder="Please Type Prompt"
-          className="textarea w-full border border-border rounded-3xl resize-none h-30 text-textMain p-5 pr-24"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        ></textarea>
+        <div className="w-1/2 mx-auto sticky bottom-0 z-50 mb-2">
+          <textarea
+            placeholder="Please Type Prompt"
+            className="textarea w-full border border-border rounded-3xl resize-none h-30 text-textMain p-5 pr-24"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          ></textarea>
 
-        <button className="absolute right-4 bottom-4 btn btn-primary rounded-4xl" onClick={handleGenerate} disabled={loading}>
-          Generate
-        </button>
+          <button className="absolute right-4 bottom-4 btn btn-primary rounded-4xl" onClick={handleGenerate} disabled={loading}>
+            Generate
+          </button>
+        </div>
       </div>
     </div>
   );
