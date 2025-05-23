@@ -22,8 +22,8 @@ export default function AIImage() {
   }, [aiData]);
 
   return (
-    <div className="flex flex-col font-mono justify-center items-center tracking-normal gap-8" ref={messagesEndRef}>
-      <div className="flex-1 w-full mx-auto flex items-center justify-center">
+    <div className="flex flex-col font-mono justify-center items-center tracking-normal w-full gap-8" ref={messagesEndRef}>
+      <div className="flex-1 w-1/2 mx-auto flex items-center justify-center">
         <Message aiData={aiData} loading={loading} />
       </div>
 
