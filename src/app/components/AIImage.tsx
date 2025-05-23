@@ -18,19 +18,19 @@ export default function AIImage() {
   };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [aiData]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] font-mono justify-center items-center tracking-normal gap-8 ">
-      <div className="flex-1 overflow-auto w-full mx-auto flex items-center justify-center" ref={messagesEndRef}>
+    <div className="flex flex-col font-mono justify-center items-center tracking-normal gap-8" ref={messagesEndRef}>
+      <div className="flex-1 w-full mx-auto flex items-center justify-center">
         <Message aiData={aiData} loading={loading} />
       </div>
 
       <div className="w-1/2 mx-auto relative mb-2">
         <textarea
           placeholder="Please Type Prompt"
-          className="textarea w-full border border-border rounded-3xl resize-none h-30 text-textMain p-5 pr-24" // add right padding
+          className="textarea w-full border border-border rounded-3xl resize-none h-30 text-textMain p-5 pr-24"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         ></textarea>
