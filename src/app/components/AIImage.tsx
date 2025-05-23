@@ -57,10 +57,10 @@ const Message = ({ aiData }: { aiData: geminiResponse[] }) => {
     <div className="flex flex-col gap-4">
       {aiData.map((item, index) => (
         <div key={index}>
-          <div className="chat chat-start">
+          <div className="chat chat-end">
             <div className="chat-bubble">{item.prompt}</div>
           </div>
-          <div className="chat chat-end">
+          <div className="chat chat-start">
             <div className="chat-bubble">
               {item.loading ? (
                 <div className="skeleton card w-96 h-96"></div>
