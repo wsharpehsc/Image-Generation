@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { generateImage, geminiResponse } from "../actions/generateImage";
+import { generateImage } from "../actions/generateImage";
+import { geminiResponse } from "../types/type";
 
 export default function AIImage() {
   const [prompt, setPrompt] = useState("");
@@ -10,7 +11,7 @@ export default function AIImage() {
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
   const handleGenerate = async () => {
-    const newEntry: geminiResponse = { prompt, loading: true };
+    const newEntry: geminiResponse = { prompt, loading: true, error: "" };
     setAiData((prev) => [...prev, newEntry]);
     setPrompt("");
 
