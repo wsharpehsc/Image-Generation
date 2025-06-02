@@ -3,9 +3,9 @@ import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { geminiResponse, PromptWrapperType } from "../types/type";
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-
 export async function generateImage(
   userOriginalPrompt: string,
+  chatHistory: { role: string; content: string }[],
   wrapperType: PromptWrapperType = PromptWrapperType.POLICY_SFW_INCLUSIVE
 ): Promise<geminiResponse> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -16,7 +16,7 @@ export async function generateImage(
   console.log("Final prompt being sent to API:", finalPrompt);
 
   try {
-    const result = await model.generateContent(finalPrompt);
+    const result = await model.generateContent([...chatHistory, finalPrompt]);
     const response = result.response;
 
     // Blocked By API

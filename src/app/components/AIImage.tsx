@@ -9,15 +9,18 @@ export default function AIImage() {
   const [aiData, setAiData] = useState<geminiResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const chatHistory: { role: string; content: string }[] = [];
 
   const handleGenerate = async () => {
     const newEntry: geminiResponse = { prompt, loading: true, error: "" };
     setAiData((prev) => [...prev, newEntry]);
     setPrompt("");
 
-    const result = await generateImage(prompt);
+    const result = await generateImage(prompt, chatHistory);
 
     setAiData((prev) => prev.map((item, index) => (index === prev.length - 1 ? { ...result, prompt: item.prompt } : item)));
+    chatHistory.push({ role: "user", content: result.prompt });
+    chatHistory.push({ role: "assistant", content: result.image ?? "" });
     setLoading(false);
   };
 
