@@ -1,98 +1,36 @@
 "use server";
-import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
+import { GoogleGenAI, Modality } from "@google/genai";
 import { geminiResponse, PromptWrapperType } from "../types/type";
 
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-export async function generateImage(
-  userOriginalPrompt: string,
-  chatHistory: { role: string; content: string }[],
-  wrapperType: PromptWrapperType = PromptWrapperType.POLICY_SFW_INCLUSIVE
-): Promise<geminiResponse> {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  const model = createModel(genAI);
+export async function generateImage(userOriginalPrompt: string, wrapperType: PromptWrapperType = PromptWrapperType.NONE): Promise<geminiResponse> {
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-  // Construct the final prompt using the wrapper
+  // Construct the final prompt using the wrapper (assuming getWrappedPrompt is defined elsewhere)
   const finalPrompt = getWrappedPrompt(userOriginalPrompt, wrapperType);
-  console.log("Final prompt being sent to API:", finalPrompt);
 
   try {
-    const result = await model.generateContent([...chatHistory, finalPrompt]);
-    const response = result.response;
+    var response = await ai.models.generateContent({
+      model: "gemini-2.0-flash-preview-image-generation",
+      contents: finalPrompt,
+      config: { responseModalities: [Modality.TEXT, Modality.IMAGE] },
+    });
 
-    // Blocked By API
-    if (response.promptFeedback?.blockReason) {
-      console.warn(`Prompt blocked by API. Reason: ${response.promptFeedback.blockReason}, Final Prompt: "${finalPrompt}"`);
-      return {
-        image: "",
-        prompt: userOriginalPrompt,
-        loading: false,
-        error: `Your request was blocked by safety filters. Reason: ${response.promptFeedback.blockReason}.`,
-      };
-    }
-
-    const candidate = response.candidates?.[0];
-    if (!candidate) {
-      console.warn(`No candidate found for final prompt: "${finalPrompt}"`);
-      return { image: "", prompt: userOriginalPrompt, loading: false, error: "No image could be generated." };
-    }
-    if (candidate.safetyRatings && candidate.safetyRatings.length > 0) {
-      for (const rating of candidate.safetyRatings) {
-        if (rating.probability !== "NEGLIGIBLE" && rating.probability !== "LOW") {
-          console.warn(`Policy Violation: Content blocked. Category: ${rating.category}, Final Prompt: "${finalPrompt}"`);
-          return {
-            image: "",
-            prompt: userOriginalPrompt,
-            loading: false,
-            error: `The generated image was blocked due to safety concerns (${rating.category}).`,
-          };
-        }
+    for (const part of response.candidates![0].content!.parts!) {
+      // Based on the part type, either show the text or save the image
+      if (part.text) {
+        console.log(part.text);
+      } else if (part.inlineData) {
+        const imageData = part.inlineData.data;
+        return { error: "", image: imageData, prompt: finalPrompt };
       }
     }
 
-    if (candidate.content && candidate.content.parts) {
-      for (const part of candidate.content.parts) {
-        if (part.inlineData) {
-          return { image: part.inlineData.data, prompt: userOriginalPrompt, loading: false, error: "" };
-        }
-      }
-    }
-    console.warn(`No inline image data for final prompt: "${finalPrompt}"`);
-    return { image: "", prompt: userOriginalPrompt, loading: false, error: "No image data received." };
+    return { error: "", image: "", prompt: finalPrompt };
   } catch (error: any) {
-    console.error("Error generating image with final prompt '" + finalPrompt + "':", error);
-    if (error.message && error.message.includes("SAFETY")) {
-      return { image: "", prompt: userOriginalPrompt, loading: false, error: "Generation failed due to safety restrictions." };
-    }
-    return { image: "", prompt: userOriginalPrompt, loading: false, error: "An unexpected error occurred." };
+    console.error("Error generating image:", error);
+    return { error: "Error", image: undefined, prompt: finalPrompt };
   }
 }
-
-const createModel = (genAI: any) => {
-  return genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-exp",
-    safetySettings: [
-      {
-        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE, // Block if medium or high probability
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-    ],
-    generationConfig: {
-      responseModalities: ["Text", "Image"],
-    },
-  });
-};
 
 function getWrappedPrompt(userPrompt: string, wrapperType: PromptWrapperType): string {
   switch (wrapperType) {
