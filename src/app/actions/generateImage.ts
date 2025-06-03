@@ -27,8 +27,6 @@ export async function generateImage(userOriginalPrompt: string, wrapperType: Pro
       }
     }
 
-    console.log(chatInstance.getHistory());
-
     return { error: "", image: "", prompt: userOriginalPrompt };
   } catch (error: any) {
     console.error("Error generating image:", error);
