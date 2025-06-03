@@ -1,19 +1,20 @@
 "use server";
-import { GoogleGenAI, Modality } from "@google/genai";
+import { Chat, GoogleGenAI, Modality } from "@google/genai";
 import { geminiResponse, PromptWrapperType } from "../types/type";
+let chatInstance: Chat | undefined = undefined;
 
 export async function generateImage(userOriginalPrompt: string, wrapperType: PromptWrapperType = PromptWrapperType.NONE): Promise<geminiResponse> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-  // Construct the final prompt using the wrapper (assuming getWrappedPrompt is defined elsewhere)
-  const finalPrompt = getWrappedPrompt(userOriginalPrompt, wrapperType);
-
   try {
-    var response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-preview-image-generation",
-      contents: finalPrompt,
-      config: { responseModalities: [Modality.TEXT, Modality.IMAGE] },
-    });
+    if (!chatInstance) {
+      chatInstance = ai.chats.create({
+        model: "gemini-2.0-flash-preview-image-generation",
+        config: { responseModalities: [Modality.TEXT, Modality.IMAGE] },
+      });
+    }
+
+    const response = await chatInstance.sendMessage({ message: userOriginalPrompt });
 
     for (const part of response.candidates![0].content!.parts!) {
       // Based on the part type, either show the text or save the image
@@ -21,14 +22,17 @@ export async function generateImage(userOriginalPrompt: string, wrapperType: Pro
         console.log(part.text);
       } else if (part.inlineData) {
         const imageData = part.inlineData.data;
-        return { error: "", image: imageData, prompt: finalPrompt };
+
+        return { error: "", image: imageData, prompt: userOriginalPrompt };
       }
     }
 
-    return { error: "", image: "", prompt: finalPrompt };
+    console.log(chatInstance.getHistory());
+
+    return { error: "", image: "", prompt: userOriginalPrompt };
   } catch (error: any) {
     console.error("Error generating image:", error);
-    return { error: "Error", image: undefined, prompt: finalPrompt };
+    return { error: "Error", image: undefined, prompt: userOriginalPrompt };
   }
 }
 
