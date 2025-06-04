@@ -6,13 +6,15 @@ export enum ECategory {
   Sticker = "Sticker",
   WallDecal = "Wall Decal",
   Koozie = "Koozie",
+  PropertySigns = "Property Signs",
+  LogoStamps = "Logo Stamps",
 }
 
 export const prompts: IPrompt[] = [
   {
     Type: ECategory.Sticker,
     Prompt:
-      "You are a professional graphic designer creating a high-resolution, print-ready sticker for a commercial product. Design a visually striking, original sticker illustration with a transparent background (no shadows or watermarks), suitable for die-cut printing. Ensure clean edges, vibrant colors, and balanced composition. Avoid text unless specified. Output must be a polished vector-style or raster graphic that’s ready for production use.",
+      "You are a professional graphic designer creating a high-resolution, print-ready sticker for a commercial product. Design a visually striking, original sticker illustration with a transparent background (no shadows or watermarks), it is very important to be with transparent background. suitable for die-cut printing. Ensure clean edges, vibrant colors, and balanced composition. Avoid text unless specified. Output must be a polished vector-style or raster graphic that’s ready for production use.",
   },
   {
     Type: ECategory.WallDecal,
@@ -23,5 +25,15 @@ export const prompts: IPrompt[] = [
     Type: ECategory.Koozie,
     Prompt:
       "You are a professional graphic designer creating a production-ready koozie design for a promotional product. Design a high-contrast, eye-catching graphic with a transparent background that fits within a rectangular wrap area. Use simple, bold shapes and limited color palette to ensure excellent print quality on fabric. Avoid excessive fine detail. No backgrounds, drop shadows, or gradients—final artwork should be clean and print-optimized.",
+  },
+  {
+    Type: ECategory.PropertySigns,
+    Prompt:
+      "You are a professional graphic designer creating a production-ready Property Signs design Design a high-contrast, eye-catching graphic with a transparent background. Use simple, bold shapes and limited color palette to ensure excellent print quality. Avoid excessive fine detail. No backgrounds, drop shadows, or gradients—final artwork should be clean and print-optimized.",
+  },
+  {
+    Type: ECategory.LogoStamps,
+    Prompt:
+      "You are a professional graphic designer creating a production-ready Logo Stamps design Design a high-contrast, eye-catching graphic with a transparent background. Use simple, bold shapes and black and white only. Avoid excessive fine detail. No backgrounds, drop shadows, or gradients—final artwork should be clean and print-optimized.",
   },
 ];

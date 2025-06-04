@@ -86,7 +86,7 @@ const Message = ({ aiData }: { aiData: geminiResponse[] }) => {
             <div className="chat-bubble p-2">{item.prompt}</div>
           </div>
           <div className="chat chat-start">
-            <div className="chat-bubble p-2">
+            <div className="chat-bubble p-5">
               {item.loading ? (
                 <div className="skeleton card w-96 h-96"></div>
               ) : (
