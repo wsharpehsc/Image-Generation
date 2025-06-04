@@ -3,19 +3,26 @@
 import { useEffect, useRef, useState } from "react";
 import { generateImage } from "../actions/generateImage";
 import { geminiResponse } from "../types/type";
+import { ECategory, IPrompt, prompts } from "../data/data";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function AIImage() {
   const [prompt, setPrompt] = useState("");
   const [aiData, setAiData] = useState<geminiResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const [category, setCategory] = useState<IPrompt | null>(null);
 
   const handleGenerate = async () => {
+    if (!category) {
+      toast.error("Please Choose a category");
+      return;
+    }
     const newEntry: geminiResponse = { prompt, loading: true, error: "" };
     setAiData((prev) => [...prev, newEntry]);
     setPrompt("");
 
-    const result = await generateImage(prompt);
+    const result = await generateImage(prompt, category);
 
     setAiData((prev) => prev.map((item, index) => (index === prev.length - 1 ? { ...result, prompt: item.prompt } : item)));
     setLoading(false);
@@ -26,7 +33,7 @@ export default function AIImage() {
   }, [aiData]);
 
   return (
-    <div className="relative">
+    <div className="flex flex-col items-center gap-4 py-6">
       <div className="flex flex-col font-mono justify-center items-center tracking-normal w-full gap-8" ref={messagesEndRef}>
         <div className="flex-1 w-1/2 mx-auto flex items-center justify-center min-h-screen">
           <Message aiData={aiData} />
@@ -40,11 +47,28 @@ export default function AIImage() {
             onChange={(e) => setPrompt(e.target.value)}
           ></textarea>
 
-          <button className="absolute right-4 bottom-4 btn btn-primary rounded-4xl" onClick={handleGenerate} disabled={loading}>
-            Generate
-          </button>
+          <div className="flex flex-row justify-between mt-2">
+            <select
+              className="select select-info text-base rounded-lg shadow-sm border border-blue-600"
+              onChange={(e) => setCategory(prompts[parseInt(e.target.value)])}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Pick a category
+              </option>
+              {prompts.map((item, index) => (
+                <option key={index} value={index}>
+                  {item.Type}
+                </option>
+              ))}
+            </select>
+            <button className="btn btn-primary rounded-4xl" onClick={handleGenerate} disabled={loading}>
+              Generate
+            </button>
+          </div>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

@@ -1,17 +1,22 @@
 "use server";
 import { Chat, GoogleGenAI, Modality } from "@google/genai";
 import { geminiResponse, PromptWrapperType } from "../types/type";
+import { IPrompt } from "../data/data";
 let chatInstance: Chat | undefined = undefined;
 
-export async function generateImage(userOriginalPrompt: string, wrapperType: PromptWrapperType = PromptWrapperType.NONE): Promise<geminiResponse> {
+export async function generateImage(userOriginalPrompt: string, prompt: IPrompt): Promise<geminiResponse> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
   try {
     if (!chatInstance) {
       chatInstance = ai.chats.create({
         model: "gemini-2.0-flash-preview-image-generation",
-        config: { responseModalities: [Modality.TEXT, Modality.IMAGE] },
+        config: {
+          responseModalities: [Modality.TEXT, Modality.IMAGE],
+        },
       });
+
+      await chatInstance.sendMessage({ message: prompt.Prompt });
     }
 
     const response = await chatInstance.sendMessage({ message: userOriginalPrompt });
