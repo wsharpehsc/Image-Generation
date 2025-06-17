@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { generateImage } from "../actions/generateImage";
 import { geminiResponse } from "../types/type";
-import { ECategory, IPrompt, prompts } from "../data/data";
-import toast, { Toaster } from "react-hot-toast";
+import { IPrompt, prompts } from "../data/data";
+import toast from "react-hot-toast";
+import PromptSelector from "../components/PromptSelector";
 
-export default function AIImage() {
+export default function GeminiAiPage() {
   const [prompt, setPrompt] = useState("");
   const [aiData, setAiData] = useState<geminiResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,7 @@ export default function AIImage() {
       toast.error("Please Choose a category");
       return;
     }
+
     const newEntry: geminiResponse = { prompt, loading: true, error: "" };
     setAiData((prev) => [...prev, newEntry]);
     setPrompt("");
@@ -38,37 +40,8 @@ export default function AIImage() {
         <div className="flex-1 w-1/2 mx-auto flex items-center justify-center min-h-screen">
           <Message aiData={aiData} />
         </div>
-
-        <div className="w-1/2 mx-auto sticky bottom-0 z-50 mb-2">
-          <textarea
-            placeholder="Please Type Prompt"
-            className="textarea w-full border border-border rounded-3xl resize-none h-30 text-textMain p-5 pr-24"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          ></textarea>
-
-          <div className="flex flex-row justify-between mt-2">
-            <select
-              className="select select-info text-base rounded-lg shadow-sm border border-blue-600"
-              onChange={(e) => setCategory(prompts[parseInt(e.target.value)])}
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Pick a category
-              </option>
-              {prompts.map((item, index) => (
-                <option key={index} value={index}>
-                  {item.Type}
-                </option>
-              ))}
-            </select>
-            <button className="btn btn-primary rounded-4xl" onClick={handleGenerate} disabled={loading}>
-              Generate
-            </button>
-          </div>
-        </div>
+        <PromptSelector handleGenerate={handleGenerate} loading={loading} setCategory={setCategory} prompt={prompt} setPrompt={setPrompt} />
       </div>
-      <Toaster />
     </div>
   );
 }

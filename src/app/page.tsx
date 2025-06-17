@@ -1,5 +1,5 @@
-import AIImage from "./components/AIImage";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
-  return <AIImage />;
+  redirect("/gemini");
 }
