@@ -4,9 +4,10 @@ import { geminiResponse, PromptWrapperType } from "../types/type";
 import { IPrompt } from "../data/data";
 let chatInstance: Chat | undefined = undefined;
 
-export async function generateImage(userOriginalPrompt: string, prompt: IPrompt): Promise<geminiResponse> {
+export async function generateImage(userOriginalPrompt: string, prompt: IPrompt, wrapper:string): Promise<geminiResponse> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-
+  //console.log(prompt);
+  //console.log(wrapper);
   try {
     if (!chatInstance) {
       chatInstance = ai.chats.create({
@@ -15,27 +16,40 @@ export async function generateImage(userOriginalPrompt: string, prompt: IPrompt)
           responseModalities: [Modality.TEXT, Modality.IMAGE],
         },
       });
+      if(prompt.skus && prompt.skus.length > 0){
+        for ( const sku of prompt.skus ){
+          if(sku.promptWrapper === wrapper){
+           let wrappedPrompt = sku.promptWrapper.replace("{{prompt}}",userOriginalPrompt);
+           console.log(wrappedPrompt);
+           await chatInstance.sendMessage({ message: wrappedPrompt });
+          }
+        
 
-      await chatInstance.sendMessage({ message: prompt.Prompt });
+        //console.log(wrappedPrompt);
+        //await chatInstance.sendMessage({ message: wrappedPrompt });
+      }
+      }
+       
     }
-
+    
     const response = await chatInstance.sendMessage({ message: userOriginalPrompt });
-
+    let geminiThinking :string = "";
     for (const part of response.candidates![0].content!.parts!) {
       // Based on the part type, either show the text or save the image
       if (part.text) {
         console.log(part.text);
+        geminiThinking=part.text;
       } else if (part.inlineData) {
         const imageData = part.inlineData.data;
 
-        return { error: "", image: imageData, prompt: userOriginalPrompt };
+        return { error: "", image: imageData, prompt: userOriginalPrompt,geminiText:geminiThinking };
       }
     }
 
-    return { error: "", image: "", prompt: userOriginalPrompt };
+    return { error: "", image: "", prompt: userOriginalPrompt,geminiText:"" };
   } catch (error: any) {
     console.error("Error generating image:", error);
-    return { error: "Error", image: undefined, prompt: userOriginalPrompt };
+    return { error: "Error", image: undefined, prompt: userOriginalPrompt,geminiText:"" };
   }
 }
 

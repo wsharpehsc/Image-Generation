@@ -3,6 +3,7 @@ export type geminiResponse = {
   image?: string;
   loading?: boolean;
   error: string;
+  geminiText:string;
 };
 
 export enum PromptWrapperType {
