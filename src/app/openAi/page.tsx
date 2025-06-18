@@ -4,6 +4,7 @@ import PromptSelector from "../components/PromptSelector";
 import { IPrompt } from "../data/data";
 import toast, { Toaster } from "react-hot-toast";
 import { openAiGenerate } from "../actions/openAiGenerate";
+import FabricCanvas from "../components/ImgEditor/FabricCanvas";
 
 export default function OpenAiPage() {
   const [prompt, setPrompt] = useState("");
@@ -35,7 +36,8 @@ export default function OpenAiPage() {
       <div className="flex flex-col font-mono justify-center items-center tracking-normal w-full gap-8">
         <div className="flex justify-center items-center w-1/3  max-w-3xl mx-auto p-4">
           {loading && <div className="skeleton h-80 w-80"></div>}
-          {img && <img src={`data:image/png;base64,${img}`} alt="Generated" className="w-full h-auto object-contain border rounded shadow-lg" />}
+          {img && <FabricCanvas b64={img} />}
+          {/* {img && <img src={`data:image/png;base64,${img}`} alt="Generated" className="w-full h-auto object-contain border rounded shadow-lg" />} */}
         </div>
         <PromptSelector handleGenerate={handleGenerate} loading={loading} setCategory={setCategory} prompt={prompt} setPrompt={setPrompt} />
       </div>
