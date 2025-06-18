@@ -2,24 +2,39 @@
 
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react";
-import { FabricImage, IText } from "fabric";
+import { FabricImage, IText, Circle, Rect } from "fabric";
+import { FONT_OPTIONS } from "@/app/data/data";
+import { RectangleHorizontal, Circle as LucidCircle, Trash } from "lucide-react";
 
-const FabricCanvas = ({ b64 }: { b64: string }) => {
+interface FabricCanvasProps {
+  b64: string;
+}
+
+const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
   const { editor, onReady } = useFabricJSEditor();
   const [textColor, setTextColor] = useState("#ffffff");
   const [fontFamily, setFontFamily] = useState("Arial");
   const [fontSize, setFontSize] = useState(30);
+  const [colorMode, setColorMode] = useState<"fill" | "stroke">("fill");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!editor || !editor.canvas) return;
 
     const loadImage = async () => {
-      const image = await FabricImage.fromURL(`data:image/png;base64,${b64}`);
-      image.scaleToWidth(500);
-      image.scaleToHeight(500);
-      editor.canvas.add(image);
-      editor.canvas.setWidth(600);
-      editor.canvas.setHeight(600);
+      try {
+        setIsLoading(true);
+        const image = await FabricImage.fromURL(`data:image/png;base64,${b64}`);
+        image.scaleToWidth(500);
+        image.scaleToHeight(500);
+        editor.canvas.add(image);
+        editor.canvas.setWidth(600);
+        editor.canvas.setHeight(600);
+      } catch (error) {
+        console.error("Error loading image:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadImage();
@@ -41,16 +56,39 @@ const FabricCanvas = ({ b64 }: { b64: string }) => {
     editor.canvas.renderAll();
   };
 
-  const updateTextProperties = () => {
-    const active = editor?.canvas.getActiveObject() as IText;
-    if (active && active.type === "i-text") {
-      active.set({
-        fill: textColor,
-        fontFamily: fontFamily,
-        fontSize: fontSize,
-      });
-      editor?.canvas.renderAll();
-    }
+  const handleAddRectangle = () => {
+    if (!editor || !editor.canvas) return;
+
+    const rect = new Rect({
+      left: 100,
+      top: 100,
+      width: 100,
+      height: 60,
+      fill: colorMode === "fill" ? textColor : "transparent",
+      stroke: colorMode === "stroke" ? textColor : undefined,
+      strokeWidth: colorMode === "stroke" ? 2 : 0,
+    });
+
+    editor.canvas.add(rect);
+    editor.canvas.setActiveObject(rect);
+    editor.canvas.renderAll();
+  };
+
+  const handleAddCircle = () => {
+    if (!editor || !editor.canvas) return;
+
+    const circle = new Circle({
+      left: 150,
+      top: 150,
+      radius: 50,
+      fill: colorMode === "fill" ? textColor : "transparent",
+      stroke: colorMode === "stroke" ? textColor : undefined,
+      strokeWidth: colorMode === "stroke" ? 2 : 0,
+    });
+
+    editor.canvas.add(circle);
+    editor.canvas.setActiveObject(circle);
+    editor.canvas.renderAll();
   };
 
   const handleDelete = () => {
@@ -64,51 +102,144 @@ const FabricCanvas = ({ b64 }: { b64: string }) => {
   };
 
   useEffect(() => {
-    updateTextProperties();
-  }, [textColor, fontFamily, fontSize]);
+    const active = editor?.canvas.getActiveObject();
+
+    if (!editor || !editor.canvas || !active) return;
+
+    // Update text
+    if (active.type === "i-text") {
+      active.set({
+        fill: colorMode === "fill" ? textColor : (active.fill as string),
+        fontFamily,
+        fontSize,
+      });
+    }
+
+    // Update shapes
+    if (active.type === "rect" || active.type === "circle") {
+      if (colorMode === "fill") {
+        active.set("fill", textColor);
+      } else if (colorMode === "stroke") {
+        active.set("stroke", textColor);
+        active.set("strokeWidth", 2);
+      }
+    }
+
+    editor.canvas.renderAll();
+  }, [textColor, fontFamily, fontSize, colorMode, editor]);
 
   return (
-    <div className="App space-y-2">
-      <div className="flex flex-wrap items-center gap-4 mb-2">
-        <button className="btn btn-secondary" onClick={handleAddText}>
-          Add Text
-        </button>
-
-        <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} title="Text Color" />
-
-        <FontSelector fontFamily={fontFamily} setFontFamily={setFontFamily} />
-
-        <input
-          type="number"
-          min={10}
-          max={200}
-          value={fontSize}
-          onChange={(e) => setFontSize(Number(e.target.value))}
-          className="border rounded px-2 py-1 w-20"
-          title="Font Size"
-        />
-
-        <button className="btn btn-error" onClick={handleDelete}>
-          Delete Selected
-        </button>
+    <div className="flex flex-col gap-2 p-2 bg-base-100 rounded-box shadow-lg w-full max-w-5xl mx-auto items-center">
+      {/* Main Controls */}
+      <div className="flex flex-col gap-4 bg-base-200 p-4 rounded-box">
+        <div className="flex flex-wrap items-center gap-4 justify-between">
+          {/* Controls */}
+          <div className="flex items-center gap-4">
+            <button className="btn btn-primary" onClick={handleAddText} disabled={isLoading}>
+              Add Text
+            </button>
+            <div className="flex items-center gap-2">
+              <label className="label">
+                <span className="label-text font-medium">Color:</span>
+              </label>
+              <input
+                type="color"
+                value={textColor}
+                onChange={(e) => setTextColor(e.target.value)}
+                className="w-10 h-10 cursor-pointer rounded-lg border border-base-300"
+                disabled={isLoading}
+              />
+              <select
+                className="select select-bordered"
+                value={colorMode}
+                onChange={(e) => setColorMode(e.target.value as "fill" | "stroke")}
+                disabled={isLoading}
+              >
+                <option value="fill">Fill</option>
+                <option value="stroke">Border</option>
+              </select>
+            </div>
+          </div>
+          <FontSelector fontFamily={fontFamily} setFontFamily={setFontFamily} disabled={isLoading} />
+          <FontSize setFontSize={setFontSize} fontSize={fontSize} />
+        </div>
       </div>
 
-      <FabricJSCanvas className="w-full h-auto border border-red-400" onReady={onReady} />
+      {/* Canvas Area */}
+      <div className="relative border-2 border-base-300 rounded-box overflow-hidden">
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-base-200/80 z-10">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        )}
+        <div className="flex">
+          {/* Vertical Toolbar */}
+          <div className="flex flex-col gap-2 p-3 bg-base-300 border-r border-base-300">
+            <button className="btn btn-sm btn-accent" onClick={handleAddRectangle} disabled={isLoading}>
+              <RectangleHorizontal />
+            </button>
+            <button className="btn btn-sm btn-accent" onClick={handleAddCircle} disabled={isLoading}>
+              <LucidCircle />
+            </button>
+            <button className="btn btn-error" onClick={handleDelete} disabled={isLoading}>
+              <Trash />
+            </button>
+          </div>
+
+          {/* Canvas */}
+          <div className="flex-1 flex justify-center items-center min-h-[600px]">
+            <FabricJSCanvas className="w-full h-full" onReady={onReady} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default FabricCanvas;
 
-const FontSelector = ({ fontFamily, setFontFamily }: { fontFamily: string; setFontFamily: Dispatch<SetStateAction<string>> }) => {
+type FontSelectorProps = {
+  fontFamily: string;
+  setFontFamily: Dispatch<SetStateAction<string>>;
+  disabled?: boolean;
+};
+
+const FontSelector = ({ fontFamily, setFontFamily, disabled }: FontSelectorProps) => {
   return (
-    <select className="select" value={fontFamily} onChange={(e) => setFontFamily(e.target.value)}>
-      <option value="Arial">Arial</option>
-      <option value="Georgia">Georgia</option>
-      <option value="Courier New">Courier New</option>
-      <option value="Comic Sans MS">Comic Sans</option>
-      <option value="Impact">Impact</option>
-      <option value="Times New Roman">Times New Roman</option>
-    </select>
+    <div className="flex items-center gap-2">
+      <label className="label">
+        <span className="label-text font-medium">Font:</span>
+      </label>
+      <select className="select select-bordered" value={fontFamily} onChange={(e) => setFontFamily(e.target.value)} disabled={disabled}>
+        {FONT_OPTIONS.map((font) => (
+          <option key={font.value} value={font.value}>
+            {font.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
+
+type FontSizeProps = {
+  fontSize: number;
+  setFontSize: Dispatch<SetStateAction<number>>;
+};
+
+const FontSize = ({ fontSize, setFontSize }: FontSizeProps) => {
+  return (
+    <div className="flex items-center gap-2">
+      <label className="label">
+        <span className="label-text font-medium">Size:</span>
+      </label>
+      <input
+        type="number"
+        min={10}
+        max={200}
+        value={fontSize}
+        onChange={(e) => setFontSize(Number(e.target.value))}
+        className="input input-bordered w-20"
+      />
+    </div>
   );
 };

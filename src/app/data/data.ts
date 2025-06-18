@@ -37,3 +37,12 @@ export const prompts: IPrompt[] = [
       "You are a professional graphic designer creating a production-ready Logo Stamps design Design a high-contrast, eye-catching graphic with a transparent background. Use simple, bold shapes and black and white only. Avoid excessive fine detail. No backgrounds, drop shadows, or gradients—final artwork should be clean and print-optimized.",
   },
 ];
+
+export const FONT_OPTIONS = [
+  { value: "Arial", label: "Arial" },
+  { value: "Georgia", label: "Georgia" },
+  { value: "Courier New", label: "Courier New" },
+  { value: "Comic Sans MS", label: "Comic Sans" },
+  { value: "Impact", label: "Impact" },
+  { value: "Times New Roman", label: "Times New Roman" },
+];
