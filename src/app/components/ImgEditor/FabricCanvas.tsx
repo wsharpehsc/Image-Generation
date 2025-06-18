@@ -5,6 +5,7 @@ import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react";
 import { FabricImage, IText, Circle, Rect } from "fabric";
 import { FONT_OPTIONS } from "@/app/data/data";
 import { RectangleHorizontal, Circle as LucidCircle, Trash } from "lucide-react";
+import { useFabricActions } from "./useFabricActions";
 
 interface FabricCanvasProps {
   b64: string;
@@ -17,6 +18,7 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
   const [fontSize, setFontSize] = useState(30);
   const [colorMode, setColorMode] = useState<"fill" | "stroke">("fill");
   const [isLoading, setIsLoading] = useState(true);
+  const { addText, addRectangle, addCircle, deleteSelected } = useFabricActions(editor, textColor, fontSize, fontFamily, colorMode);
 
   useEffect(() => {
     if (!editor || !editor.canvas) return;
@@ -39,67 +41,6 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
 
     loadImage();
   }, [editor, b64]);
-
-  const handleAddText = () => {
-    if (!editor || !editor.canvas) return;
-
-    const text = new IText("Edit me", {
-      left: 100,
-      top: 100,
-      fill: textColor,
-      fontSize: fontSize,
-      fontFamily: fontFamily,
-    });
-
-    editor.canvas.add(text);
-    editor.canvas.setActiveObject(text);
-    editor.canvas.renderAll();
-  };
-
-  const handleAddRectangle = () => {
-    if (!editor || !editor.canvas) return;
-
-    const rect = new Rect({
-      left: 100,
-      top: 100,
-      width: 100,
-      height: 60,
-      fill: colorMode === "fill" ? textColor : "transparent",
-      stroke: colorMode === "stroke" ? textColor : undefined,
-      strokeWidth: colorMode === "stroke" ? 2 : 0,
-    });
-
-    editor.canvas.add(rect);
-    editor.canvas.setActiveObject(rect);
-    editor.canvas.renderAll();
-  };
-
-  const handleAddCircle = () => {
-    if (!editor || !editor.canvas) return;
-
-    const circle = new Circle({
-      left: 150,
-      top: 150,
-      radius: 50,
-      fill: colorMode === "fill" ? textColor : "transparent",
-      stroke: colorMode === "stroke" ? textColor : undefined,
-      strokeWidth: colorMode === "stroke" ? 2 : 0,
-    });
-
-    editor.canvas.add(circle);
-    editor.canvas.setActiveObject(circle);
-    editor.canvas.renderAll();
-  };
-
-  const handleDelete = () => {
-    const activeObject = editor?.canvas.getActiveObject();
-    if (!editor || !editor.canvas) return;
-    if (activeObject) {
-      editor.canvas.remove(activeObject);
-      editor.canvas.discardActiveObject();
-      editor.canvas.renderAll();
-    }
-  };
 
   useEffect(() => {
     const active = editor?.canvas.getActiveObject();
@@ -135,7 +76,7 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
         <div className="flex flex-wrap items-center gap-4 justify-between">
           {/* Controls */}
           <div className="flex items-center gap-4">
-            <button className="btn btn-primary" onClick={handleAddText} disabled={isLoading}>
+            <button className="btn btn-primary" onClick={addText} disabled={isLoading}>
               Add Text
             </button>
             <div className="flex items-center gap-2">
@@ -175,13 +116,13 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
         <div className="flex">
           {/* Vertical Toolbar */}
           <div className="flex flex-col gap-2 p-3 bg-base-300 border-r border-base-300">
-            <button className="btn btn-sm btn-accent" onClick={handleAddRectangle} disabled={isLoading}>
+            <button className="btn btn-sm btn-accent" onClick={addRectangle} disabled={isLoading}>
               <RectangleHorizontal />
             </button>
-            <button className="btn btn-sm btn-accent" onClick={handleAddCircle} disabled={isLoading}>
+            <button className="btn btn-sm btn-accent" onClick={addCircle} disabled={isLoading}>
               <LucidCircle />
             </button>
-            <button className="btn btn-error" onClick={handleDelete} disabled={isLoading}>
+            <button className="btn btn-error" onClick={deleteSelected} disabled={isLoading}>
               <Trash />
             </button>
           </div>

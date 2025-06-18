@@ -72,7 +72,7 @@ export default function OpenAiPage() {
           </div>
         </div>
 
-        <div className="card bg-base-200 shadow-lg">
+        <div className="card shadow-lg">
           <div className="card-body">
             <PromptSelector handleGenerate={handleGenerate} loading={loading} setCategory={setCategory} prompt={prompt} setPrompt={setPrompt} />
           </div>
