@@ -7,11 +7,7 @@ import { FONT_OPTIONS } from "@/app/data/data";
 import { RectangleHorizontal, Circle as LucidCircle, Trash } from "lucide-react";
 import { useFabricActions } from "./useFabricActions";
 
-interface FabricCanvasProps {
-  b64: string;
-}
-
-const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
+const FabricCanvas = ({ b64 }: { b64: string }) => {
   const { editor, onReady } = useFabricJSEditor();
   const [textColor, setTextColor] = useState("#ffffff");
   const [fontFamily, setFontFamily] = useState("Arial");
@@ -67,10 +63,9 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
 
   return (
     <div className="flex flex-col gap-2 p-2 bg-base-100 rounded-box shadow-lg w-full max-w-5xl mx-auto items-center">
-      {/* Main Controls */}
+      {/* Controls */}
       <div className="flex flex-col gap-4 bg-base-200 p-4 rounded-box">
         <div className="flex flex-wrap items-center gap-4 justify-between">
-          {/* Controls */}
           <div className="flex items-center gap-4">
             <button className="btn btn-primary" onClick={addText}>
               Add Text
