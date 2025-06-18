@@ -17,7 +17,6 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [fontSize, setFontSize] = useState(30);
   const [colorMode, setColorMode] = useState<"fill" | "stroke">("fill");
-  const [isLoading, setIsLoading] = useState(true);
   const { addText, addRectangle, addCircle, deleteSelected } = useFabricActions(editor, textColor, fontSize, fontFamily, colorMode);
 
   useEffect(() => {
@@ -25,7 +24,6 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
 
     const loadImage = async () => {
       try {
-        setIsLoading(true);
         const image = await FabricImage.fromURL(`data:image/png;base64,${b64}`);
         image.scaleToWidth(500);
         image.scaleToHeight(500);
@@ -34,8 +32,6 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
         editor.canvas.setHeight(600);
       } catch (error) {
         console.error("Error loading image:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -76,7 +72,7 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
         <div className="flex flex-wrap items-center gap-4 justify-between">
           {/* Controls */}
           <div className="flex items-center gap-4">
-            <button className="btn btn-primary" onClick={addText} disabled={isLoading}>
+            <button className="btn btn-primary" onClick={addText}>
               Add Text
             </button>
             <div className="flex items-center gap-2">
@@ -88,46 +84,32 @@ const FabricCanvas = ({ b64 }: FabricCanvasProps) => {
                 value={textColor}
                 onChange={(e) => setTextColor(e.target.value)}
                 className="w-10 h-10 cursor-pointer rounded-lg border border-base-300"
-                disabled={isLoading}
               />
-              <select
-                className="select select-bordered"
-                value={colorMode}
-                onChange={(e) => setColorMode(e.target.value as "fill" | "stroke")}
-                disabled={isLoading}
-              >
+              <select className="select select-bordered" value={colorMode} onChange={(e) => setColorMode(e.target.value as "fill" | "stroke")}>
                 <option value="fill">Fill</option>
                 <option value="stroke">Border</option>
               </select>
             </div>
           </div>
-          <FontSelector fontFamily={fontFamily} setFontFamily={setFontFamily} disabled={isLoading} />
+          <FontSelector fontFamily={fontFamily} setFontFamily={setFontFamily} />
           <FontSize setFontSize={setFontSize} fontSize={fontSize} />
         </div>
       </div>
 
-      {/* Canvas Area */}
       <div className="relative border-2 border-base-300 rounded-box overflow-hidden">
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-base-200/80 z-10">
-            <span className="loading loading-spinner loading-lg"></span>
-          </div>
-        )}
         <div className="flex">
-          {/* Vertical Toolbar */}
           <div className="flex flex-col gap-2 p-3 bg-base-300 border-r border-base-300">
-            <button className="btn btn-sm btn-accent" onClick={addRectangle} disabled={isLoading}>
+            <button className="btn btn-sm btn-accent" onClick={addRectangle}>
               <RectangleHorizontal />
             </button>
-            <button className="btn btn-sm btn-accent" onClick={addCircle} disabled={isLoading}>
+            <button className="btn btn-sm btn-accent" onClick={addCircle}>
               <LucidCircle />
             </button>
-            <button className="btn btn-error" onClick={deleteSelected} disabled={isLoading}>
+            <button className="btn btn-error" onClick={deleteSelected}>
               <Trash />
             </button>
           </div>
 
-          {/* Canvas */}
           <div className="flex-1 flex justify-center items-center min-h-[600px]">
             <FabricJSCanvas className="w-full h-full" onReady={onReady} />
           </div>
