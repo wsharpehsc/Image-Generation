@@ -53,3 +53,13 @@ export const prompts: IPrompt[] = [
     
   
 ];
+
+
+export const FONT_OPTIONS = [
+  { value: "Arial", label: "Arial" },
+  { value: "Georgia", label: "Georgia" },
+  { value: "Courier New", label: "Courier New" },
+  { value: "Comic Sans MS", label: "Comic Sans" },
+  { value: "Impact", label: "Impact" },
+  { value: "Times New Roman", label: "Times New Roman" },
+];

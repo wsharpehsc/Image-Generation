@@ -5,12 +5,13 @@ import { generateImage } from "../actions/generateImage";
 import { editImage } from "../actions/editImage";
 import { geminiResponse } from "../types/type";
 import { ECategory, IPrompt, prompts } from "../data/data";
-import toast, { Toaster } from "react-hot-toast";
 import { AiFillPlusCircle } from "react-icons/ai";
 import Popup from "reactjs-popup";
 import { FaLessThanEqual } from "react-icons/fa";
+import toast from "react-hot-toast";
+import PromptSelector from "../components/PromptSelector";
 
-export default function AIImage() {
+export default function GeminiAiPage() {
   const [prompt, setPrompt] = useState("");
   const [chatHistory, setChatHistory] = useState<geminiResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -122,8 +123,6 @@ export default function AIImage() {
                 onChange={(e)=> {
                   const sku = category.skus?.find(s=> s.productDescription === e.target.value);
                   if(sku) setUsedPromptWrapper(sku.promptWrapper);
-                  console.log(sku?.promptWrapper);
-                  toast.error("success");
                 }}
               >
                 <option defaultValue={""}>
@@ -188,7 +187,6 @@ export default function AIImage() {
           </div>
         </div>
       </div>
-      <Toaster />
     </div>
   );
 }
@@ -240,7 +238,7 @@ const Message = ({
             <div className="chat-bubble p-2">{item.prompt}</div>
           </div>
           <div className="chat chat-start">
-            <div className="chat-bubble p-2">
+            <div className="chat-bubble p-5">
               {item.loading ? (
                 <div className="skeleton card w-96 h-96"></div>
               ) : (
