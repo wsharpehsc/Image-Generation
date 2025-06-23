@@ -7,6 +7,9 @@ import toast, { Toaster } from "react-hot-toast";
 import { openAiGenerate } from "../actions/openAiGenerate";
 import FabricCanvas from "../components/ImgEditor/FabricCanvas";
 import { Ban } from "lucide-react";
+import Popup from "reactjs-popup";
+import { AiFillPlusCircle } from "react-icons/ai";
+import { OpenAIResponse } from "../types/type";
 
 export default function OpenAiPage() {
   const [prompt, setPrompt] = useState("");
@@ -14,7 +17,9 @@ export default function OpenAiPage() {
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState<IPrompt | null>(null);
   const [error, setError] = useState("");
-  const [promptWrapper,setPromptWrapper] = useState("")
+  const [promptWrapper,setPromptWrapper] = useState("");
+
+  
 
   const handleGenerate = async () => {
     if (!category) {
@@ -27,7 +32,7 @@ export default function OpenAiPage() {
       setImg("");
       setError("");
 
-      const response = await openAiGenerate(prompt, category);
+      const response = await openAiGenerate(prompt, category,promptWrapper);
 
       if (response.type === "error") {
         setError(response.error);
@@ -46,6 +51,9 @@ export default function OpenAiPage() {
     }
   };
 
+  
+
+
   return (
     <div className="min-h-screen bg-base-100 p-6">
       <div className="max-w-6xl mx-auto flex flex-col gap-8">
@@ -57,11 +65,13 @@ export default function OpenAiPage() {
               <div className="w-full">
                 <FabricCanvas b64={img} />
               </div>
+              
             ) : (
               <PlaceholderMessage message={error || "Image will appear here"} />
             )}
           </div>
         </div>
+        <div>hi</div>
 
         <PromptSelector handleGenerate={handleGenerate} loading={loading} setCategory={setCategory} prompt={prompt} setPrompt={setPrompt} category={category} setPromptWrapper={setPromptWrapper} promptWrapper="" />
 

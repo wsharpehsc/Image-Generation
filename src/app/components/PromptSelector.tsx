@@ -60,6 +60,7 @@ const PromptSelector: React.FC<PromptSelectorProps> = ({ setCategory, handleGene
           </select>
             
         )}
+        
       
         <button className="btn btn-primary rounded-4xl" onClick={handleGenerate} disabled={loading}>
           Generate

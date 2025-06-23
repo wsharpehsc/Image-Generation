@@ -47,6 +47,22 @@ export const prompts: IPrompt[] = [
   {
     Type: ECategory.Sticker
   },
+  {
+    Type: ECategory.Signs,
+    skus:[
+      {
+        skuNumber:"CS-EXIT-101",
+        promptWrapper:`Create a clear and professional product rendering for a 'Glow-in-the-Dark EXIT Sign' based on {{prompt}}. Display the sign with dimensions 10" x 7", focusing on color, readability, and placement on a wall or door. Ensure the image conveys its practical use in a workplace or public setting.`,
+        productDescription:"Glow in the dark EXIT sign. 10 x 7"
+      },
+      {
+        skuNumber:"CS-NOFOOD-103",
+        promptWrapper:`Create a clear and professional product rendering for a 'No Food or Drink Allowed Sign' based on {{prompt}}. Display the sign with dimensions 7" x 10", focusing on color, readability, and placement on a wall or door. Ensure the image conveys its practical use in a workplace or public setting.`,
+        productDescription:"No Food or Drink Allowed sign 7 x 10"
+
+      }
+    ]
+  }
 
   
     

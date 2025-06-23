@@ -6,6 +6,11 @@ export type geminiResponse = {
   geminiText:string;
 };
 
+export type OpenAIResponse = {
+  type:string;
+  bs64jSON:string
+}
+
 export enum PromptWrapperType {
   NONE = "none",
   ARTISTIC_WATERCOLOR = "artistic_watercolor",
